@@ -1,0 +1,27 @@
+{
+  "name": "se_project_express",
+  "version": "1.0.0",
+  "description": "Sprint 12 Project",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adelapaz33/se_project_express.git"
+  },
+  "keywords": [
+    "backend",
+    "express",
+    "database"
+  ],
+  "author": "Alison de la Paz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adelapaz33/se_project_express/issues"
+  },
+  "homepage": "https://github.com/adelapaz33/se_project_express#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
