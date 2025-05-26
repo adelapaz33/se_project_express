@@ -11,7 +11,12 @@ const getClothingItems = (req, res) => {
     .orFail()
     .then((items) => res.status(200).send(items))
     .catch((err) => {
-      console.error(err);
+      // console.error(err);
+      if (err.name === "ValidationError") {
+        return res
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid data provided" });
+      }
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Internal server error" });
@@ -25,7 +30,7 @@ const createClothingItem = (req, res) => {
     .create({ name, weather, imageUrl, owner })
     .then((item) => res.status(201).send(item))
     .catch((err) => {
-      console.error(err);
+      // console.error(err);
       if (err.name === "ValidationError") {
         return res
           .status(BAD_REQUEST)
@@ -39,20 +44,20 @@ const createClothingItem = (req, res) => {
 
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
-  console.log(itemId);
+  // console.log(itemId);
   clothingItem
     .findByIdAndDelete(itemId)
     .then((item) => {
       if (!item) {
         return res.status(NOT_FOUND).json({ message: "Item not found" });
       }
-      res.status(200).json(item);
+      return res.status(200).json(item);
     })
     .catch((err) => {
-      if (err.name === "CastError" || "ValidationError") {
+      if (err.name === "CastError" || err.name === "ValidationError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
       }
-      console.error(err);
+      // console.error(err);
       return res
         .status(INTERNAL_SERVER_ERROR)
         .json({ message: "Error deleting item" });
@@ -71,16 +76,16 @@ const likeItem = (req, res) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      res.status(200).send(item);
+      return res.status(200).send(item);
     })
     .catch((err) => {
-      if (err.name === "ValidationError" || "CastError") {
+      if (err.name === "ValidationError" || err.name === "CastError") {
         return res
           .status(BAD_REQUEST)
           .send({ message: "Invalid data provided" });
       }
-      console.error(err);
-      res
+      // console.error(err);
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred while liking the item" });
     });
@@ -96,18 +101,18 @@ const unlikeItem = (req, res) => {
     )
     .then((item) => {
       if (!item) {
-        return res.status(404).send({ message: "Item not found" });
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      res.status(200).send(item);
+      return res.status(200).send(item);
     })
     .catch((err) => {
-      if (err.name === "ValidationError" || "CastError") {
+      if (err.name === "ValidationError" || err.name === "CastError") {
         return res
           .status(BAD_REQUEST)
           .send({ message: "Invalid data provided" });
       }
-      console.error(err);
-      res
+      // console.error(err);
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred while unliking the item" });
     });
