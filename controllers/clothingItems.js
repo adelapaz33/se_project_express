@@ -11,7 +11,6 @@ const getClothingItems = (req, res) => {
     .orFail()
     .then((items) => res.status(200).send(items))
     .catch((err) => {
-      // console.error(err);
       if (err.name === "ValidationError") {
         return res
           .status(BAD_REQUEST)
@@ -30,7 +29,6 @@ const createClothingItem = (req, res) => {
     .create({ name, weather, imageUrl, owner })
     .then((item) => res.status(201).send(item))
     .catch((err) => {
-      // console.error(err);
       if (err.name === "ValidationError") {
         return res
           .status(BAD_REQUEST)
@@ -44,7 +42,6 @@ const createClothingItem = (req, res) => {
 
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
-  // console.log(itemId);
   clothingItem
     .findByIdAndDelete(itemId)
     .then((item) => {
@@ -57,7 +54,6 @@ const deleteClothingItem = (req, res) => {
       if (err.name === "CastError" || err.name === "ValidationError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
       }
-      // console.error(err);
       return res
         .status(INTERNAL_SERVER_ERROR)
         .json({ message: "Error deleting item" });
@@ -84,7 +80,6 @@ const likeItem = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: "Invalid data provided" });
       }
-      // console.error(err);
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred while liking the item" });
@@ -111,7 +106,6 @@ const unlikeItem = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: "Invalid data provided" });
       }
-      // console.error(err);
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred while unliking the item" });
