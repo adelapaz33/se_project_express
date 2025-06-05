@@ -1,5 +1,8 @@
-const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = require("../utils/config");
+const User = require("../models/user");
+
 const {
   BAD_REQUEST,
   NOT_FOUND,
@@ -7,8 +10,6 @@ const {
   CONFLICT_ERROR,
   UNAUTHORIZED,
 } = require("../utils/errors");
-const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../utils/config");
 
 const getUsers = (req, res) => {
   User.find({})
@@ -47,12 +48,15 @@ const getCurrentUser = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
   bcrypt
-    .hash(req.body.password, 10)
+    .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => {
+      const userObject = user.toObject();
+      delete userObject.password;
+      res.status(201).send(userObject);
+    })
     .catch((err) => {
-      if (err.name === "DuplicateKey") {
-        // RENAME ERROR HERE!
+      if (err.code === 11000) {
         return res
           .status(CONFLICT_ERROR)
           .send({ message: "User with this email already exists" });
@@ -71,7 +75,7 @@ const createUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  return User.findUserByCredentials({email, password})
     .then((user) => {
       // create token
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -81,7 +85,15 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      res.status(UNAUTHORIZED).send({ message: "Cannot authorize request" });
+      console.error(err);
+      if (err.name === "ValidationError") {
+        return res
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid data provided" });
+      }
+      return res
+        .status(UNAUTHORIZED)
+        .send({ message: "Cannot authorize request" });
     });
 };
 

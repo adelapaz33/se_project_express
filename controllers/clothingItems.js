@@ -43,12 +43,19 @@ const createClothingItem = (req, res) => {
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
   clothingItem
-    .findByIdAndDelete(itemId)
-    .then((item) => {
+    .findById(itemId)
+    .orFail(() => {
       if (!item) {
         return res.status(NOT_FOUND).json({ message: "Item not found" });
       }
       return res.status(200).json(item);
+    })
+    .then((item) => {
+      if (req.user._id === item.owner._id) {
+        clothingItem.deleteOne(item);
+      } else {
+        return res.status(403).json({ message: "Error" });
+      }
     })
     .catch((err) => {
       if (err.name === "CastError" || err.name === "ValidationError") {
