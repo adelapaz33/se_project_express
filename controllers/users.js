@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = require("../utils/config");
+const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
 
 const {
@@ -28,8 +28,9 @@ const getUsers = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  const { userId } = req.user;
-  User.findById(userId)
+
+  // console.log(req.user);
+  User.findById(req.user._id)
     .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
@@ -74,8 +75,10 @@ const createUser = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-
-  return User.findUserByCredentials({email, password})
+  if (!email || !password) {
+    return res.status(BAD_REQUEST).send({ message: "Invalid data provided" });
+  }
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       // create token
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {

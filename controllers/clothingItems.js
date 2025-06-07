@@ -41,23 +41,25 @@ const createClothingItem = (req, res) => {
 };
 
 const deleteClothingItem = (req, res) => {
-  const { itemId } = req.params;
+  const itemId = req.params._id;
+  console.log(itemId);
   clothingItem
     .findById(itemId)
-    .orFail(() => {
-      if (!item) {
-        return res.status(NOT_FOUND).json({ message: "Item not found" });
-      }
-      return res.status(200).json(item);
-    })
+    .orFail()
     .then((item) => {
-      if (req.user._id === item.owner._id) {
-        clothingItem.deleteOne(item);
-      } else {
-        return res.status(403).json({ message: "Error" });
+      if (!item.owner.equals(req.user._id)) {
+        return res
+          .status(403)
+          .json({ message: "You are unable to delete this item" });
       }
+      return clothingItem.deleteOne(itemId).then(() => {
+        return res.status(200).json({ message: "Item deleted successfully" });
+      });
     })
     .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).json({ message: "Item not found" });
+      }
       if (err.name === "CastError" || err.name === "ValidationError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
       }
