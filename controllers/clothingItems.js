@@ -41,7 +41,7 @@ const createClothingItem = (req, res) => {
 };
 
 const deleteClothingItem = (req, res) => {
-  const itemId = req.params._id;
+  const itemId = req.params.itemId;
   console.log(itemId);
   clothingItem
     .findById(itemId)
