@@ -28,7 +28,6 @@ const getUsers = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-
   // console.log(req.user);
   User.findById(req.user._id)
     .orFail()
@@ -115,7 +114,7 @@ const updateProfile = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      res.send(user);
+      return res.send(user);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -123,7 +122,7 @@ const updateProfile = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: "Invalid data provided" });
       }
-      res
+      return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occured on the server" });
     });

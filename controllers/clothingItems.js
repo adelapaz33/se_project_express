@@ -41,7 +41,7 @@ const createClothingItem = (req, res) => {
 };
 
 const deleteClothingItem = (req, res) => {
-  const itemId = req.params.itemId;
+  const { itemId } = req.params.itemId;
   console.log(itemId);
   clothingItem
     .findById(itemId)
@@ -53,7 +53,7 @@ const deleteClothingItem = (req, res) => {
           .json({ message: "You are unable to delete this item" });
       }
       return clothingItem.deleteOne(itemId).then(() => {
-        return res.status(200).json({ message: "Item deleted successfully" });
+        res.status(200).json({ message: "Item deleted successfully" });
       });
     })
     .catch((err) => {
