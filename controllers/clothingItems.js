@@ -3,6 +3,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  FORBIDDEN,
 } = require("../utils/errors");
 
 const getClothingItems = (req, res) => {
@@ -11,11 +12,6 @@ const getClothingItems = (req, res) => {
     .orFail()
     .then((items) => res.status(200).send(items))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
-      }
       return res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Internal server error" });
@@ -41,7 +37,7 @@ const createClothingItem = (req, res) => {
 };
 
 const deleteClothingItem = (req, res) => {
-  const { itemId } = req.params.itemId;
+  const itemId = req.params.itemId;
   console.log(itemId);
   clothingItem
     .findById(itemId)
@@ -49,10 +45,10 @@ const deleteClothingItem = (req, res) => {
     .then((item) => {
       if (!item.owner.equals(req.user._id)) {
         return res
-          .status(403)
+          .status(FORBIDDEN)
           .json({ message: "You are unable to delete this item" });
       }
-      return clothingItem.deleteOne(itemId).then(() => {
+      return clothingItem.deleteOne(item).then(() => {
         res.status(200).json({ message: "Item deleted successfully" });
       });
     })

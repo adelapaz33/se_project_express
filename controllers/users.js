@@ -11,24 +11,7 @@ const {
   UNAUTHORIZED,
 } = require("../utils/errors");
 
-const getUsers = (req, res) => {
-  User.find({})
-    .orFail()
-    .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occured on the server" });
-    });
-};
-
 const getCurrentUser = (req, res) => {
-  // console.log(req.user);
   User.findById(req.user._id)
     .orFail()
     .then((user) => res.status(200).send(user))
@@ -93,6 +76,11 @@ const login = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: "Invalid data provided" });
       }
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(UNAUTHORIZED)
+          .send({ message: "Incorrect email or password" });
+      }
       return res
         .status(UNAUTHORIZED)
         .send({ message: "Cannot authorize request" });
@@ -128,4 +116,4 @@ const updateProfile = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getCurrentUser, login, updateProfile };
+module.exports = { createUser, getCurrentUser, login, updateProfile };
