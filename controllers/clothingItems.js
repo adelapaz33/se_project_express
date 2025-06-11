@@ -11,8 +11,8 @@ const getClothingItems = (req, res) => {
     .find({})
     .orFail()
     .then((items) => res.status(200).send(items))
-    .catch((err) => {
-      return res
+    .catch(() => {
+      res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Internal server error" });
     });
@@ -37,7 +37,7 @@ const createClothingItem = (req, res) => {
 };
 
 const deleteClothingItem = (req, res) => {
-  const itemId = req.params.itemId;
+  const { itemId } = req.params;
   console.log(itemId);
   clothingItem
     .findById(itemId)
