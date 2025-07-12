@@ -5,6 +5,7 @@ const mainRouter = require("./routes/index");
 const { NOT_FOUND } = require("./utils/errors");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const errorHandler = require("./middlewares/error-handler");
+const { errors } = require("celebrate");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -21,6 +22,7 @@ app.use((req, res) => {
 });
 
 app.use(errorLogger);
+
 app.use(errors());
 
 app.use(errorHandler);
