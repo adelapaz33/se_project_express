@@ -9,7 +9,6 @@ const {
 const getClothingItems = (req, res) => {
   clothingItem
     .find({})
-    .orFail()
     .then((items) => res.status(200).send(items))
     .catch(() => {
       res
