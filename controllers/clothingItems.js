@@ -7,10 +7,15 @@ const {
 } = require("../utils/errors");
 
 const getClothingItems = (req, res) => {
+  console.log("GET /items route hit");
   clothingItem
     .find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => {
+      console.log("Items found:", items);
+      res.status(200).send(items);
+    })
     .catch(() => {
+      console.error("Error in getClothingItems:", err);
       res
         .status(INTERNAL_SERVER_ERROR)
         .send({ message: "Internal server error" });
