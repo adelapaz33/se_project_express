@@ -10,6 +10,7 @@ const {
   validateUserBody,
   validateLogin,
 } = require("../middlewares/validation");
+
 router.use("/users", userRouter);
 router.use("/items", clothingItemRouter);
 
