@@ -22,5 +22,10 @@ module.exports = {
   },
   rules: {
     "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
+    "no-underscore-dangle": [
+      "error",
+      { allow: ["_id", "_doc", "_v", "_user", "_somethingElse"] },
+    ],
+    "no-console": "off",
   },
 };

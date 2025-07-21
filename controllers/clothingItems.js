@@ -14,7 +14,7 @@ const getClothingItems = (req, res) => {
       console.log("Items found:", items);
       res.status(200).send(items);
     })
-    .catch(() => {
+    .catch((err) => {
       console.error("Error in getClothingItems:", err);
       res
         .status(INTERNAL_SERVER_ERROR)
