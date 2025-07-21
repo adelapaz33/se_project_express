@@ -1,4 +1,5 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const mongoose = require("mongoose");
 const { errors } = require("celebrate");
 const cors = require("cors");
@@ -13,11 +14,15 @@ const NotFoundError = require("./errors/not-found-err");
 const app = express();
 const { PORT = 3001 } = process.env;
 
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
+
 app.get("/crash-test", () => {
   setTimeout(() => {
     throw new Error("Server will crash now");
   }, 0);
 }); // *** remove this code after passing review!!
+
+app.use(limiter);
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
