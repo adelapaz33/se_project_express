@@ -9,11 +9,7 @@ const {
 } = require("../controllers/clothingItems");
 const auth = require("../middlewares/auth");
 
-// public route
-
 router.get("/", getClothingItems);
-
-//protected routes
 
 router.post("/", auth, validateCardBody, createClothingItem);
 router.delete("/:itemId", auth, validateId, deleteClothingItem);
