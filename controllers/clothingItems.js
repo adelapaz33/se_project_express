@@ -6,7 +6,7 @@ const {
   FORBIDDEN,
 } = require("../utils/errors");
 
-const getClothingItems = (req, res) => {
+const getClothingItems = (req, res, next) => {
   console.log("GET /items route hit");
   clothingItem
     .find({})
@@ -15,14 +15,11 @@ const getClothingItems = (req, res) => {
       res.status(200).send(items);
     })
     .catch((err) => {
-      console.error("Error in getClothingItems:", err);
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Internal server error" });
+      next(err);
     });
 };
 
-const createClothingItem = (req, res) => {
+const createClothingItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
   clothingItem
@@ -30,19 +27,15 @@ const createClothingItem = (req, res) => {
     .then((item) => res.status(201).send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
+        err.statusCode = BAD_REQUEST;
+        err.message = "Invalid data provided";
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occured on the server" });
+      next(err);
     });
 };
 
-const deleteClothingItem = (req, res) => {
+const deleteClothingItem = (req, res, next) => {
   const { itemId } = req.params;
-  console.log(itemId);
   clothingItem
     .findById(itemId)
     .orFail()
@@ -58,18 +51,17 @@ const deleteClothingItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).json({ message: "Item not found" });
+        err.statusCode = NOT_FOUND;
+        err.message = "Item not found";
+      } else if (err.name === "CastError" || err.name === "ValidationError") {
+        err.statusCode = BAD_REQUEST;
+        err.message = "Invalid item ID";
       }
-      if (err.name === "CastError" || err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .json({ message: "Error deleting item" });
+      next(err);
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
   clothingItem
     .findByIdAndUpdate(
@@ -85,17 +77,14 @@ const likeItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
+        err.statusCode = BAD_REQUEST;
+        err.message = "Invalid data provided";
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred while liking the item" });
+      next(err);
     });
 };
 
-const unlikeItem = (req, res) => {
+const unlikeItem = (req, res, next) => {
   const { itemId } = req.params;
   clothingItem
     .findByIdAndUpdate(
@@ -111,13 +100,10 @@ const unlikeItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError" || err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
+        err.statusCode = BAD_REQUEST;
+        err.message = "Invalid data provided";
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred while unliking the item" });
+      next(err);
     });
 };
 

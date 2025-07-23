@@ -6,29 +6,28 @@ const User = require("../models/user");
 const {
   BAD_REQUEST,
   NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
+  // INTERNAL_SERVER_ERROR,
   CONFLICT_ERROR,
   UNAUTHORIZED,
 } = require("../utils/errors");
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "User not found" });
+        err.statusCode = NOT_FOUND;
+        err.message = "User not found";
+      } else if (err.name === "CastError") {
+        err.statusCode = BAD_REQUEST;
+        err.message = "Invalid data provided";
       }
-      if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: "Error" });
+      next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
@@ -40,22 +39,17 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return res
-          .status(CONFLICT_ERROR)
-          .send({ message: "User with this email already exists" });
+        err.statusCode = CONFLICT_ERROR;
+        err.message = "User with this email already exists";
+      } else if (err.name === "ValidationError") {
+        err.statusCode = BAD_REQUEST;
+        err.message = "Invalid data provided";
       }
-      if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occured on the server" });
+      next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(BAD_REQUEST).send({ message: "Invalid data provided" });
@@ -70,24 +64,18 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
+        err.statusCode = BAD_REQUEST;
+        err.message = "Invalid data provided";
+      } else if (err.message === "Incorrect email or password") {
+        err.statusCode = UNAUTHORIZED;
+        err.message = "Incorrect email or password";
       }
-      if (err.message === "Incorrect email or password") {
-        return res
-          .status(UNAUTHORIZED)
-          .send({ message: "Incorrect email or password" });
-      }
-      return res
-        .status(UNAUTHORIZED)
-        .send({ message: "Cannot authorize request" });
+      next(err);
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, avatar } = req.body;
   const userId = req.user._id;
   User.findByIdAndUpdate(
@@ -106,13 +94,10 @@ const updateProfile = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid data provided" });
+        err.statusCode = BAD_REQUEST;
+        err.message = "Invalid data provided";
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occured on the server" });
+      next(err);
     });
 };
 
