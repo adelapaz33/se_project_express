@@ -42,3 +42,7 @@ This project sets up a backend server using Express.js and connects to a MongoDB
 - **Deployed Domains** (available until September 2025):
   - **Frontend:** [https://ttwtwr.twilightparadox.com](https://ttwtwr.twilightparadox.com)
   - **Backend (API):** [https://api.ttwtwr.twilightparadox.com](https://api.ttwtwr.twilightparadox.com)
+
+## Demo Link
+
+![Demo Link](https://youtu.be/eGQR6fo5mP8?si=lz8z-w8bTv15gDT5)
